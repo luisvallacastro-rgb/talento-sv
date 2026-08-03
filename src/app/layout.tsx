@@ -3,6 +3,8 @@ import "./globals.css";
 import "./portal.css";
 import "./portal-extra.css";
 import "./modern-home.css";
+import "./chatbox.css";
+import { FaqChatbox } from "@/components/faq-chatbox";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.APP_URL ?? "http://localhost:3000"),
@@ -15,7 +17,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>{children}<FaqChatbox /></body>
     </html>
   );
 }
