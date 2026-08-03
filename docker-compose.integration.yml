@@ -1,0 +1,14 @@
+services:
+  postgres-integration:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: talento_integration
+      POSTGRES_USER: talento_test
+      POSTGRES_PASSWORD: talento_test_only
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U talento_test -d talento_integration"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

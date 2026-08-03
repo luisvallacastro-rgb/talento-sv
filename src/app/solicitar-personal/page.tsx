@@ -1,0 +1,2 @@
+import { ContentPage } from "@/components/content-page"; import { PublicForm } from "@/components/public-form";
+export default function Page(){return <ContentPage eyebrow="Solicitud de personal" title="La búsqueda comienza con un buen contexto." intro="Comparta los datos iniciales del puesto. El equipo validará el perfil antes de iniciar el proceso."><PublicForm type="STAFF_REQUEST"/></ContentPage>}

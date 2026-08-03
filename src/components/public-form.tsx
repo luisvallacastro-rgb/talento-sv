@@ -1,0 +1,14 @@
+"use client";
+import { useRef, useState } from "react";
+
+type Kind = "CONTACT" | "QUOTE" | "STAFF_REQUEST" | "RESUME";
+export function PublicForm({ type }: { type: Kind }) {
+  const startedAt = useRef(Date.now()); const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle"); const [message, setMessage] = useState("");
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault(); setStatus("sending"); const form = new FormData(event.currentTarget); const raw = Object.fromEntries(form.entries());
+    const body = { ...raw, type, startedAt: startedAt.current, ...(type === "STAFF_REQUEST" ? { openings: Number(raw.openings) } : {}) };
+    const response = await fetch("/api/public/inquiries", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }); const result = await response.json();
+    setMessage(result.message ?? result.error?.message ?? "No fue posible enviar la información."); setStatus(response.ok ? "success" : "error"); if (response.ok) event.currentTarget.reset();
+  }
+  return <form className="public-form" onSubmit={submit}><div className="form-grid"><label>Nombre completo<input name="name" required minLength={2} /></label><label>Correo electrónico<input name="email" type="email" required /></label><label>Teléfono<input name="phone" /></label>{type !== "RESUME" && <label>Empresa<input name="company" /></label>}{type === "QUOTE" && <><label>Servicio de interés<select name="service" required><option value="">Seleccione</option><option>Reclutamiento especializado</option><option>Evaluaciones psicométricas</option><option>Selección por competencias</option></select></label><label>Número de colaboradores<input name="employees" /></label></>}{type === "STAFF_REQUEST" && <><label>Puesto solicitado<input name="position" required /></label><label>Número de plazas<input name="openings" type="number" min="1" max="100" defaultValue="1" required /></label><label>Ubicación<input name="location" required /></label></>}{type === "RESUME" && <><label>Área profesional<input name="professionalArea" required /></label><label>Enlace privado a su currículo<input name="resumeUrl" type="url" placeholder="https://" /><small>La carga directa de archivos se habilitará con el almacenamiento privado.</small></label></>}</div><label className="full">{type === "RESUME" ? "Perfil profesional" : "¿Cómo podemos ayudarle?"}<textarea name="message" required minLength={10} rows={5} /></label><label className="honeypot" aria-hidden="true">Sitio web<input name="website" tabIndex={-1} autoComplete="off" /></label><button className="button" disabled={status === "sending"}>{status === "sending" ? "Enviando…" : "Enviar solicitud"}</button>{status !== "idle" && <p className={`form-status ${status}`} role="status">{message}</p>}</form>;
+}

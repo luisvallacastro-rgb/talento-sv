@@ -1,0 +1,1 @@
+export function calculateProgress(currentPosition:number,totalStages:number,closed:boolean){if(totalStages<=0)return 0;if(closed)return 100;return Math.max(0,Math.min(99,Math.round(currentPosition/totalStages*100)))}

@@ -1,0 +1,877 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TenantType {
+  PLATFORM
+  RECRUITER
+  CLIENT
+}
+
+enum MembershipStatus {
+  INVITED
+  ACTIVE
+  SUSPENDED
+}
+
+enum VacancyStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  PAUSED
+  CLOSED
+  CANCELLED
+}
+
+enum ApplicationStatus {
+  APPLIED
+  SCREENING
+  INTERVIEW
+  ASSESSMENT
+  SHORTLISTED
+  SELECTED
+  REJECTED
+  WITHDRAWN
+}
+
+enum PublicInquiryType {
+  CONTACT
+  QUOTE
+  STAFF_REQUEST
+  RESUME
+}
+
+enum RecruitmentRequestStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  CONVERTED
+  CANCELLED
+}
+enum InterviewMode {
+  IN_PERSON
+  PHONE
+  VIDEO
+}
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  NO_SHOW
+  RESCHEDULED
+  CANCELLED
+}
+enum DocumentStatus {
+  PENDING
+  AVAILABLE
+  QUARANTINED
+  REJECTED
+  DELETED
+}
+enum AssessmentAssignmentStatus {
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  EXPIRED
+  CANCELLED
+}
+enum ShortlistStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+}
+enum CommentVisibility {
+  INTERNAL
+  CLIENT
+}
+enum ClientDecisionType {
+  FAVORITE
+  INTERVIEW_REQUESTED
+  APPROVED
+  REJECTED
+  SELECTED
+}
+
+model Tenant {
+  id          BigInt     @id @default(autoincrement())
+  publicId    String     @unique @default(uuid()) @map("public_id") @db.Uuid
+  name        String
+  slug        String     @unique
+  type        TenantType
+  active      Boolean    @default(true)
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  memberships Membership[]
+  roles       Role[]
+  vacancies   Vacancy[]  @relation("OwnerTenant")
+  clientJobs  Vacancy[]  @relation("ClientTenant")
+  candidates  Candidate[]
+  stages      PipelineStage[]
+  sessions    Session[]
+  invitations Invitation[]
+  outboxEvents OutboxEvent[]
+  recruitmentRequests RecruitmentRequest[]
+  documents Document[]
+  tags CandidateTag[]
+  interviewForms InterviewFormVersion[]
+  assessmentTypes AssessmentType[]
+  scoringMatrices ScoringMatrix[]
+  clientComments ProcessComment[]
+  clientDecisions ClientDecision[]
+  notifications Notification[]
+  emailTemplates EmailTemplate[]
+
+  @@map("tenants")
+}
+
+model User {
+  id            BigInt       @id @default(autoincrement())
+  publicId      String       @unique @default(uuid()) @map("public_id") @db.Uuid
+  email         String       @unique
+  passwordHash  String?      @map("password_hash")
+  displayName   String       @map("display_name")
+  active        Boolean      @default(true)
+  mustChangePassword Boolean @default(false) @map("must_change_password")
+  createdAt     DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+  memberships   Membership[]
+  auditEvents   AuditEvent[]
+  sessions      Session[]
+  invitationsCreated Invitation[] @relation("InvitationCreator")
+  passwordResetTokens PasswordResetToken[]
+  vacancyAssignments VacancyAssignment[]
+  interviews Interview[] @relation("InterviewOwner")
+  interpretedAssessments AssessmentResult[] @relation("AssessmentInterpreter")
+  comments ProcessComment[]
+  clientDecisions ClientDecision[]
+  notifications Notification[]
+
+  @@map("users")
+}
+
+model Membership {
+  id        BigInt           @id @default(autoincrement())
+  tenantId  BigInt           @map("tenant_id")
+  userId    BigInt           @map("user_id")
+  status    MembershipStatus @default(INVITED)
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant    Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Restrict)
+  roles     MembershipRole[]
+  sessions  Session[]
+  lastAccessAt DateTime?     @map("last_access_at") @db.Timestamptz(6)
+
+  @@unique([tenantId, userId])
+  @@index([userId])
+  @@map("memberships")
+}
+
+model Session {
+  id           BigInt   @id @default(autoincrement())
+  publicId     String   @unique @default(uuid()) @map("public_id") @db.Uuid
+  tokenHash    String   @unique @map("token_hash")
+  userId       BigInt   @map("user_id")
+  tenantId     BigInt   @map("tenant_id")
+  membershipId BigInt   @map("membership_id")
+  userAgent    String?  @map("user_agent")
+  ipAddress    String?  @map("ip_address") @db.Inet
+  expiresAt    DateTime @map("expires_at") @db.Timestamptz(6)
+  lastSeenAt   DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+  revokedAt    DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  membership   Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  @@index([userId, revokedAt])
+  @@index([tenantId, expiresAt])
+  @@map("sessions")
+}
+
+model LoginAttempt {
+  id          BigInt   @id @default(autoincrement())
+  email       String
+  ipAddress   String?  @map("ip_address") @db.Inet
+  successful  Boolean
+  occurredAt  DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  @@index([email, occurredAt])
+  @@index([ipAddress, occurredAt])
+  @@map("login_attempts")
+}
+
+model Invitation {
+  id          BigInt   @id @default(autoincrement())
+  publicId    String   @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId    BigInt   @map("tenant_id")
+  email       String
+  tokenHash   String   @unique @map("token_hash")
+  createdById BigInt   @map("created_by_id")
+  expiresAt   DateTime @map("expires_at") @db.Timestamptz(6)
+  acceptedAt  DateTime? @map("accepted_at") @db.Timestamptz(6)
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  roleCodes   String[] @default([]) @map("role_codes")
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdBy   User     @relation("InvitationCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  @@index([tenantId, email])
+  @@map("invitations")
+}
+
+model PasswordResetToken {
+  id         BigInt   @id @default(autoincrement())
+  tokenHash  String   @unique @map("token_hash")
+  userId     BigInt   @map("user_id")
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(6)
+  usedAt     DateTime? @map("used_at") @db.Timestamptz(6)
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model OutboxEvent {
+  id          BigInt   @id @default(autoincrement())
+  tenantId    BigInt?  @map("tenant_id")
+  topic       String
+  payload     Json
+  availableAt DateTime @default(now()) @map("available_at") @db.Timestamptz(6)
+  processedAt DateTime? @map("processed_at") @db.Timestamptz(6)
+  lockedAt    DateTime? @map("locked_at") @db.Timestamptz(6)
+  lastError   String?   @map("last_error")
+  attempts    Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant      Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  @@index([processedAt, availableAt])
+  @@index([processedAt, lockedAt])
+  @@map("outbox_events")
+}
+
+model Role {
+  id          BigInt           @id @default(autoincrement())
+  tenantId    BigInt?          @map("tenant_id")
+  code        String
+  name        String
+  system      Boolean          @default(false)
+  tenant      Tenant?          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  permissions RolePermission[]
+  memberships MembershipRole[]
+
+  @@unique([tenantId, code])
+  @@map("roles")
+}
+
+model Permission {
+  id    BigInt @id @default(autoincrement())
+  code  String @unique
+  name  String
+  roles RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       BigInt @map("role_id")
+  permissionId BigInt @map("permission_id")
+  role         Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model MembershipRole {
+  membershipId BigInt @map("membership_id")
+  roleId       BigInt @map("role_id")
+  membership Membership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  @@id([membershipId, roleId])
+  @@map("membership_roles")
+}
+
+model PipelineStage {
+  id        BigInt   @id @default(autoincrement())
+  publicId  String   @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId  BigInt   @map("tenant_id")
+  code      String
+  name      String
+  position  Int
+  active    Boolean  @default(true)
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  applications Application[]
+  @@unique([tenantId, code])
+  @@unique([tenantId, position])
+  @@map("pipeline_stages")
+}
+
+model Vacancy {
+  id             BigInt        @id @default(autoincrement())
+  publicId       String        @unique @default(uuid()) @map("public_id") @db.Uuid
+  ownerTenantId  BigInt        @map("owner_tenant_id")
+  clientTenantId BigInt        @map("client_tenant_id")
+  title          String
+  slug           String?
+  public         Boolean       @default(false)
+  summary        String?
+  location       String?
+  workMode       String?       @map("work_mode")
+  status         VacancyStatus @default(DRAFT)
+  targetDate     DateTime?     @map("target_date") @db.Date
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt      DateTime?     @map("deleted_at") @db.Timestamptz(6)
+  ownerTenant    Tenant        @relation("OwnerTenant", fields: [ownerTenantId], references: [id], onDelete: Restrict)
+  clientTenant   Tenant        @relation("ClientTenant", fields: [clientTenantId], references: [id], onDelete: Restrict)
+  applications   Application[]
+  assignments    VacancyAssignment[]
+  statusHistory  VacancyStatusHistory[]
+  recruitmentRequest RecruitmentRequest?
+  scoringVersionId BigInt? @map("scoring_version_id")
+  scoringVersion ScoringMatrixVersion? @relation(fields: [scoringVersionId], references: [id], onDelete: Restrict)
+  shortlists Shortlist[]
+  comments ProcessComment[]
+  @@index([ownerTenantId, status])
+  @@index([clientTenantId, status])
+  @@unique([ownerTenantId, slug])
+  @@index([public, status, createdAt])
+  @@map("vacancies")
+}
+
+model RecruitmentRequest {
+  id             BigInt @id @default(autoincrement())
+  publicId       String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId       BigInt @map("tenant_id")
+  status         RecruitmentRequestStatus @default(SUBMITTED)
+  positionTitle  String @map("position_title")
+  department     String?
+  openings       Int @default(1)
+  location       String
+  details        Json
+  vacancyId      BigInt? @unique @map("vacancy_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  tenant         Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  vacancy        Vacancy? @relation(fields: [vacancyId], references: [id], onDelete: Restrict)
+  @@index([tenantId, status, createdAt])
+  @@map("recruitment_requests")
+}
+
+model VacancyAssignment {
+  vacancyId BigInt @map("vacancy_id")
+  userId    BigInt @map("user_id")
+  assignedAt DateTime @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  vacancy Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@id([vacancyId, userId])
+  @@index([userId])
+  @@map("vacancy_assignments")
+}
+
+model VacancyStatusHistory {
+  id BigInt @id @default(autoincrement())
+  vacancyId BigInt @map("vacancy_id")
+  fromStatus VacancyStatus? @map("from_status")
+  toStatus VacancyStatus @map("to_status")
+  changedById BigInt @map("changed_by_id")
+  reason String?
+  changedAt DateTime @default(now()) @map("changed_at") @db.Timestamptz(6)
+  vacancy Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  @@index([vacancyId, changedAt])
+  @@map("vacancy_status_history")
+}
+
+model PublicInquiry {
+  id          BigInt            @id @default(autoincrement())
+  publicId    String            @unique @default(uuid()) @map("public_id") @db.Uuid
+  type        PublicInquiryType
+  email       String
+  name        String
+  phone       String?
+  company     String?
+  payload     Json
+  ipHash      String?           @map("ip_hash")
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  processedAt DateTime?         @map("processed_at") @db.Timestamptz(6)
+  @@index([type, createdAt])
+  @@index([email, createdAt])
+  @@map("public_inquiries")
+}
+
+model Candidate {
+  id          BigInt   @id @default(autoincrement())
+  publicId    String   @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId    BigInt   @map("tenant_id")
+  firstName   String   @map("first_name")
+  lastName    String   @map("last_name")
+  email       String?
+  phone       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  applications Application[]
+  experiences CandidateExperience[]
+  educations CandidateEducation[]
+  certifications CandidateCertification[]
+  languages CandidateLanguage[]
+  competencies CandidateCompetency[]
+  references CandidateReference[]
+  consents CandidateConsent[]
+  tags CandidateTagAssignment[]
+  assessmentAssignments AssessmentAssignment[]
+  @@unique([tenantId, email])
+  @@index([tenantId, lastName, firstName])
+  @@map("candidates")
+}
+
+model CandidateExperience {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  company String
+  position String
+  startedOn DateTime @map("started_on") @db.Date
+  endedOn DateTime? @map("ended_on") @db.Date
+  description String?
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@index([candidateId])
+  @@map("candidate_experiences")
+}
+
+model CandidateEducation {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  institution String
+  degree String
+  field String?
+  completedOn DateTime? @map("completed_on") @db.Date
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@index([candidateId])
+  @@map("candidate_educations")
+}
+
+model CandidateCertification {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  name String
+  issuer String?
+  issuedOn DateTime? @map("issued_on") @db.Date
+  expiresOn DateTime? @map("expires_on") @db.Date
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@index([candidateId])
+  @@map("candidate_certifications")
+}
+
+model CandidateLanguage {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  language String
+  proficiency String
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@unique([candidateId, language])
+  @@map("candidate_languages")
+}
+
+model CandidateCompetency {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  name String
+  level String?
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@unique([candidateId, name])
+  @@map("candidate_competencies")
+}
+
+model CandidateReference {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  name String
+  relationship String
+  company String?
+  phone String?
+  email String?
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@index([candidateId])
+  @@map("candidate_references")
+}
+
+model CandidateConsent {
+  id BigInt @id @default(autoincrement())
+  candidateId BigInt @map("candidate_id")
+  purpose String
+  noticeVersion String @map("notice_version")
+  accepted Boolean
+  acceptedAt DateTime @map("accepted_at") @db.Timestamptz(6)
+  medium String
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz(6)
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  @@index([candidateId, purpose, acceptedAt])
+  @@map("candidate_consents")
+}
+
+model CandidateTag {
+  id BigInt @id @default(autoincrement())
+  tenantId BigInt @map("tenant_id")
+  name String
+  color String?
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  candidates CandidateTagAssignment[]
+  @@unique([tenantId, name])
+  @@map("candidate_tags")
+}
+
+model CandidateTagAssignment {
+  candidateId BigInt @map("candidate_id")
+  tagId BigInt @map("tag_id")
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  tag CandidateTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@id([candidateId, tagId])
+  @@map("candidate_tag_assignments")
+}
+
+model Application {
+  id          BigInt            @id @default(autoincrement())
+  publicId    String            @unique @default(uuid()) @map("public_id") @db.Uuid
+  vacancyId   BigInt            @map("vacancy_id")
+  candidateId BigInt            @map("candidate_id")
+  stageId     BigInt?           @map("stage_id")
+  status      ApplicationStatus @default(APPLIED)
+  presentedToClientAt DateTime? @map("presented_to_client_at") @db.Timestamptz(6)
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  vacancy     Vacancy           @relation(fields: [vacancyId], references: [id], onDelete: Restrict)
+  candidate   Candidate         @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  stage       PipelineStage?    @relation(fields: [stageId], references: [id], onDelete: Restrict)
+  interviews  Interview[]
+  scoreRuns ScoreRun[]
+  shortlistEntries ShortlistEntry[]
+  clientDecisions ClientDecision[]
+  @@unique([vacancyId, candidateId])
+  @@index([vacancyId, status])
+  @@index([candidateId])
+  @@map("applications")
+}
+
+model Interview {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  applicationId BigInt @map("application_id")
+  interviewerUserId BigInt @map("interviewer_user_id")
+  mode InterviewMode
+  status InterviewStatus @default(SCHEDULED)
+  scheduledAt DateTime @map("scheduled_at") @db.Timestamptz(6)
+  durationMinutes Int @map("duration_minutes")
+  location String?
+  meetingUrl String? @map("meeting_url")
+  score Decimal? @db.Decimal(5,2)
+  notes String?
+  formVersionId BigInt? @map("form_version_id")
+  responses Json?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  interviewer User @relation("InterviewOwner", fields: [interviewerUserId], references: [id], onDelete: Restrict)
+  formVersion InterviewFormVersion? @relation(fields: [formVersionId], references: [id], onDelete: Restrict)
+  @@index([applicationId, scheduledAt])
+  @@index([interviewerUserId, scheduledAt])
+  @@map("interviews")
+}
+
+model InterviewFormVersion {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  name String
+  version Int
+  definition Json
+  active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  interviews Interview[]
+  @@unique([tenantId, name, version])
+  @@index([tenantId, active])
+  @@map("interview_form_versions")
+}
+
+model Document {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  ownerType String @map("owner_type")
+  ownerPublicId String @map("owner_public_id") @db.Uuid
+  storageKey String @unique @map("storage_key")
+  originalName String @map("original_name")
+  mimeType String @map("mime_type")
+  sizeBytes BigInt @map("size_bytes")
+  checksum String?
+  status DocumentStatus @default(PENDING)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  @@index([tenantId, ownerType, ownerPublicId])
+  @@map("documents")
+}
+
+model AssessmentType {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  name String
+  description String?
+  active Boolean @default(true)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  versions AssessmentVersion[]
+  @@unique([tenantId, name])
+  @@map("assessment_types")
+}
+
+model AssessmentVersion {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  assessmentTypeId BigInt @map("assessment_type_id")
+  version Int
+  definition Json
+  interpretationRanges Json @map("interpretation_ranges")
+  authorizedUseConfirmed Boolean @default(false) @map("authorized_use_confirmed")
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  assessmentType AssessmentType @relation(fields: [assessmentTypeId], references: [id], onDelete: Restrict)
+  assignments AssessmentAssignment[]
+  @@unique([assessmentTypeId, version])
+  @@map("assessment_versions")
+}
+
+model AssessmentAssignment {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  assessmentVersionId BigInt @map("assessment_version_id")
+  candidateId BigInt @map("candidate_id")
+  status AssessmentAssignmentStatus @default(ASSIGNED)
+  maxAttempts Int @default(1) @map("max_attempts")
+  attemptsUsed Int @default(0) @map("attempts_used")
+  startedAt DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  expiresAt DateTime? @map("expires_at") @db.Timestamptz(6)
+  responses Json?
+  assessmentVersion AssessmentVersion @relation(fields: [assessmentVersionId], references: [id], onDelete: Restrict)
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Restrict)
+  result AssessmentResult?
+  @@index([candidateId, status])
+  @@map("assessment_assignments")
+}
+
+model AssessmentResult {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  assignmentId BigInt @unique @map("assignment_id")
+  rawScore Decimal @map("raw_score") @db.Decimal(12,4)
+  factorScores Json @map("factor_scores")
+  interpretation String?
+  professionalReport String? @map("professional_report")
+  clientVisible Boolean @default(false) @map("client_visible")
+  interpretedById BigInt? @map("interpreted_by_id")
+  calculatedAt DateTime @default(now()) @map("calculated_at") @db.Timestamptz(6)
+  assignment AssessmentAssignment @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+  interpretedBy User? @relation("AssessmentInterpreter", fields: [interpretedById], references: [id], onDelete: Restrict)
+  @@map("assessment_results")
+}
+
+model ScoringMatrix {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  name String
+  active Boolean @default(true)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  versions ScoringMatrixVersion[]
+  @@unique([tenantId, name])
+  @@map("scoring_matrices")
+}
+
+model ScoringMatrixVersion {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  matrixId BigInt @map("matrix_id")
+  version Int
+  publishedAt DateTime? @map("published_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  matrix ScoringMatrix @relation(fields: [matrixId], references: [id], onDelete: Restrict)
+  variables ScoringVariable[]
+  rules ScoringRule[]
+  vacancies Vacancy[]
+  scoreRuns ScoreRun[]
+  @@unique([matrixId, version])
+  @@map("scoring_matrix_versions")
+}
+
+model ScoringVariable {
+  id BigInt @id @default(autoincrement())
+  versionId BigInt @map("version_id")
+  code String
+  name String
+  category String
+  weight Decimal @db.Decimal(7,4)
+  minimum Decimal @db.Decimal(12,4)
+  maximum Decimal @db.Decimal(12,4)
+  required Boolean @default(false)
+  version ScoringMatrixVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  @@unique([versionId, code])
+  @@map("scoring_variables")
+}
+
+model ScoringRule {
+  id BigInt @id @default(autoincrement())
+  versionId BigInt @map("version_id")
+  code String
+  description String
+  condition Json
+  effect Json
+  version ScoringMatrixVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  @@unique([versionId, code])
+  @@map("scoring_rules")
+}
+
+model ScoreRun {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  applicationId BigInt @map("application_id")
+  versionId BigInt @map("version_id")
+  inputs Json
+  total Decimal @db.Decimal(12,4)
+  excluded Boolean @default(false)
+  explanation Json
+  calculatedAt DateTime @default(now()) @map("calculated_at") @db.Timestamptz(6)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  version ScoringMatrixVersion @relation(fields: [versionId], references: [id], onDelete: Restrict)
+  components ScoreComponent[]
+  @@index([applicationId, calculatedAt])
+  @@index([versionId, total])
+  @@map("score_runs")
+}
+
+model ScoreComponent {
+  id BigInt @id @default(autoincrement())
+  scoreRunId BigInt @map("score_run_id")
+  variableCode String @map("variable_code")
+  rawValue Decimal @map("raw_value") @db.Decimal(12,4)
+  normalizedValue Decimal @map("normalized_value") @db.Decimal(12,4)
+  weightedValue Decimal @map("weighted_value") @db.Decimal(12,4)
+  scoreRun ScoreRun @relation(fields: [scoreRunId], references: [id], onDelete: Cascade)
+  @@index([scoreRunId])
+  @@map("score_components")
+}
+
+model Shortlist {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  vacancyId BigInt @map("vacancy_id")
+  status ShortlistStatus @default(DRAFT)
+  targetSize Int @default(3) @map("target_size")
+  presentedAt DateTime? @map("presented_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  vacancy Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Restrict)
+  entries ShortlistEntry[]
+  @@index([vacancyId, status])
+  @@map("shortlists")
+}
+
+model ShortlistEntry {
+  shortlistId BigInt @map("shortlist_id")
+  applicationId BigInt @map("application_id")
+  position Int
+  inclusionReason String @map("inclusion_reason")
+  manuallySelected Boolean @default(false) @map("manually_selected")
+  shortlist Shortlist @relation(fields: [shortlistId], references: [id], onDelete: Cascade)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  @@id([shortlistId, applicationId])
+  @@unique([shortlistId, position])
+  @@map("shortlist_entries")
+}
+
+model ProcessComment {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  vacancyId BigInt @map("vacancy_id")
+  authorUserId BigInt @map("author_user_id")
+  visibility CommentVisibility
+  body String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz(6)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  vacancy Vacancy @relation(fields: [vacancyId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorUserId], references: [id], onDelete: Restrict)
+  @@index([vacancyId, visibility, createdAt])
+  @@map("process_comments")
+}
+
+model ClientDecision {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  applicationId BigInt @map("application_id")
+  userId BigInt @map("user_id")
+  type ClientDecisionType
+  reason String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  application Application @relation(fields: [applicationId], references: [id], onDelete: Restrict)
+  user User @relation(fields: [userId], references: [id], onDelete: Restrict)
+  @@index([tenantId, applicationId, createdAt])
+  @@map("client_decisions")
+}
+
+model Notification {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  userId BigInt @map("user_id")
+  topic String
+  title String
+  body String
+  actionUrl String? @map("action_url")
+  readAt DateTime? @map("read_at") @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([tenantId, userId, readAt, createdAt])
+  @@map("notifications")
+}
+
+model EmailTemplate {
+  id BigInt @id @default(autoincrement())
+  publicId String @unique @default(uuid()) @map("public_id") @db.Uuid
+  tenantId BigInt @map("tenant_id")
+  code String
+  subject String
+  htmlBody String @map("html_body")
+  textBody String @map("text_body")
+  version Int
+  active Boolean @default(true)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  @@unique([tenantId, code, version])
+  @@index([tenantId, code, active])
+  @@map("email_templates")
+}
+
+model AuditEvent {
+  id          BigInt   @id @default(autoincrement())
+  tenantId    BigInt?  @map("tenant_id")
+  actorUserId BigInt?  @map("actor_user_id")
+  action      String
+  module      String
+  entityType  String?  @map("entity_type")
+  entityId    String?  @map("entity_id")
+  ipAddress   String?  @map("ip_address") @db.Inet
+  previous    Json?
+  current     Json?
+  reason      String?
+  occurredAt  DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  actor       User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  @@index([tenantId, occurredAt])
+  @@index([entityType, entityId])
+  @@map("audit_events")
+}
