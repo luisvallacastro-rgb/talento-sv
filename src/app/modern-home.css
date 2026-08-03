@@ -210,3 +210,28 @@
   .closing-section .modern-cta p{font-size:16px}
   .closing-section .modern-cta>div:not(.cta-orb)>div{margin-top:24px}
 }
+
+/* Mobile homefeed hierarchy */
+@media(max-width:650px){
+  .site-header{height:72px;padding-inline:20px;gap:18px}
+  .site-header .brand b{font-size:17px}
+  .site-header .brand span{width:32px;height:32px;font-size:10px;margin-right:7px}
+  .site-header .login-link i{width:32px;height:32px}
+  .modern-hero{min-height:auto;padding:36px 18px 44px}
+  .live-pill{max-width:100%;padding:7px 10px;gap:7px;font-size:9px;letter-spacing:.075em;white-space:nowrap}
+  .live-pill i{width:6px;height:6px;box-shadow:0 0 0 4px rgba(67,169,107,.13)}
+  .hero-copy h1{font-size:clamp(38px,10.5vw,44px);line-height:.92;margin:25px auto 20px}
+  .hero-title{min-height:1.8em;grid-template-rows:1em .8em;gap:0}
+  .hero-title .title-line{padding-bottom:.04em;margin-bottom:-.04em;flex-wrap:nowrap}
+  .hero-title .rotating-line{height:1em;min-height:1em;font-size:.72em;letter-spacing:-.065em}
+  .hero-copy>p{max-width:340px;font-size:16px;line-height:1.45;letter-spacing:-.015em}
+  .hero-actions{width:100%;gap:14px;margin-top:24px}
+  .hero-actions .button{width:100%;max-width:330px;padding:14px 18px;font-size:16px}
+  .hero-actions .magnetic{gap:20px}
+  .play-link{gap:9px;font-size:15px}
+  .play-link i{width:34px;height:34px}
+  .hero-proof{gap:12px;margin-top:22px}
+  .avatar-stack span{width:34px;height:34px;border-width:2px;font-size:9px}
+  .hero-proof p{font-size:11px;line-height:1.35}
+  .talent-visual{margin-top:36px}
+}
