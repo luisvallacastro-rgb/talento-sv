@@ -3,16 +3,16 @@
 import {useEffect,useState} from "react";
 
 const phrases=[
-  "Mueve",
-  "Transforma",
-  "Impulsa",
-  "Fortalece",
-  "Potencia",
-  "Dinamiza",
-  "Acelera",
-  "Activa",
-  "Eleva",
-  "Conecta",
+  "mueve empresas",
+  "transforma equipos",
+  "impulsa resultados",
+  "conecta personas",
+  "fortalece organizaciones",
+  "desarrolla líderes",
+  "genera oportunidades",
+  "construye futuro",
+  "potencia negocios",
+  "inspira crecimiento.",
 ];
 
 export function RotatingHeroPhrase(){
@@ -34,5 +34,5 @@ export function RotatingHeroPhrase(){
     return()=>window.clearTimeout(timer);
   },[deleting,index,text]);
 
-  return <span className="title-line title-line-dark rotating-line" aria-hidden="true"><span className="rotating-verb"><span className="rotating-text">{text}</span><i className="typing-cursor"/></span><span className="fixed-hero-word">Empresas.</span></span>;
+  return <span className="title-line title-line-dark rotating-line" aria-hidden="true"><span className="rotating-text">{text}</span><i className="typing-cursor"/></span>;
 }
