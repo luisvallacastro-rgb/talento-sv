@@ -237,15 +237,22 @@
 }
 
 /* Mobile hero: message first, compact live strip */
+.mobile-demo-section{display:none}
+.modern-hero>.logo-marquee{width:100vw;margin-left:calc(50% - 50vw);margin-top:28px;margin-bottom:-8px}
 @media(max-width:650px){
   .modern-hero{padding-top:52px;padding-bottom:38px}
-  .hero-copy h1{font-size:clamp(42px,11.5vw,48px);margin:34px auto 24px}
-  .hero-title{min-height:1.76em;grid-template-rows:1em .76em}
-  .hero-title .rotating-line{font-size:.68em;letter-spacing:-.06em}
+  .hero-copy h1{font-size:clamp(48px,13.5vw,58px);margin:34px auto 24px}
+  .hero-title{min-height:2.82em;grid-template-rows:1em 1.82em}
+  .hero-title .rotating-line{width:100%;height:1.82em;min-height:1.82em;font-size:.92em;line-height:.82;letter-spacing:-.068em;white-space:normal;align-items:center}
+  .hero-title .rotating-text{display:block;width:min(9.3ch,100%);min-height:1.64em;margin-inline:auto;text-align:center;text-wrap:balance}
+  .hero-title .typing-cursor{align-self:center;margin-left:.09em}
   .hero-copy>p{font-size:15px;line-height:1.42;max-width:326px}
   .hero-actions{margin-top:22px}
   .hero-proof{margin-top:20px}
-  .clear-talent-demo{height:58px!important;min-height:58px;margin-top:30px;border-radius:18px;box-shadow:0 16px 40px rgba(25,60,50,.11);background:rgba(255,255,255,.76)}
-  .clear-talent-demo .demo-topbar{height:58px;border-bottom:0;animation:none;opacity:1;transform:none}
-  .clear-talent-demo .clear-demo-heading,.clear-talent-demo .selection-flow,.clear-talent-demo .demo-pointer-light,.clear-talent-demo .demo-glow{display:none!important}
+  .hero-demo .clear-talent-demo{height:58px!important;min-height:58px;margin-top:30px;border-radius:18px;box-shadow:0 16px 40px rgba(25,60,50,.11);background:rgba(255,255,255,.76)}
+  .hero-demo .clear-talent-demo .demo-topbar{height:58px;border-bottom:0;animation:none;opacity:1;transform:none}
+  .hero-demo .clear-talent-demo .clear-demo-heading,.hero-demo .clear-talent-demo .selection-flow,.hero-demo .clear-talent-demo .demo-pointer-light,.hero-demo .clear-talent-demo .demo-glow{display:none!important}
+  .modern-hero>.logo-marquee{margin-top:26px;margin-bottom:-38px;padding-block:15px}
+  .mobile-demo-section{display:block;padding:42px 18px 72px;background:#eef3eb}
+  .mobile-demo-section .talent-visual{margin:0 auto;border-radius:24px}
 }

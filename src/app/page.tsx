@@ -22,10 +22,11 @@ export default function HomePage() {
         <div className="hero-actions"><Link className="button magnetic" href="/solicitar-personal">Iniciar una búsqueda <span>→</span></Link><Link className="play-link" href="/servicios"><i>↗</i> Explorar servicios</Link></div>
         <div className="hero-proof"><div className="avatar-stack"><span>AM</span><span>JR</span><span>+8</span></div><p><b>Equipos que confían</b><br/>en procesos mejor pensados</p></div>
       </div>
-      <TalentDemo />
+      <div className="hero-demo"><TalentDemo /></div>
+      <section className="logo-marquee" aria-label="Principios del servicio"><div className="marquee-track"><div className="marquee-set"><span>Confidencialidad</span><b>✦</b><span>Trazabilidad</span><b>✦</b><span>Criterio profesional</span><b>✦</b><span>Visión humana</span><b>✦</b></div><div className="marquee-set" aria-hidden="true"><span>Confidencialidad</span><b>✦</b><span>Trazabilidad</span><b>✦</b><span>Criterio profesional</span><b>✦</b><span>Visión humana</span><b>✦</b></div></div></section>
     </section>
 
-    <section className="logo-marquee" aria-label="Principios del servicio"><div className="marquee-track"><div className="marquee-set"><span>Confidencialidad</span><b>✦</b><span>Trazabilidad</span><b>✦</b><span>Criterio profesional</span><b>✦</b><span>Visión humana</span><b>✦</b></div><div className="marquee-set" aria-hidden="true"><span>Confidencialidad</span><b>✦</b><span>Trazabilidad</span><b>✦</b><span>Criterio profesional</span><b>✦</b><span>Visión humana</span><b>✦</b></div></div></section>
+    <section className="mobile-demo-section" aria-label="Cómo construimos una terna"><TalentDemo /></section>
 
     <section className="modern-section">
       <Reveal className="section-intro"><span className="eyebrow">Lo hacemos diferente</span><h2>Menos ruido.<br/><em>Mejores decisiones.</em></h2><p>Cada etapa existe por una razón. Usted ve el avance; nosotros cuidamos la profundidad del proceso.</p></Reveal>
