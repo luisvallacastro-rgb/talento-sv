@@ -6,7 +6,6 @@ services:
     region: oregon
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    preDeployCommand: pnpm exec prisma migrate deploy
     healthCheckPath: /api/health/readiness
     autoDeployTrigger: commit
     envVars:
@@ -25,19 +24,11 @@ services:
       - key: DEMO_CLIENT_ENABLED
         value: "true"
       - key: DEMO_CLIENT_PASSWORD
-        sync: false
+        value: ClienteDemo2026!
       - key: DEMO_CLIENT_TOKEN
         generateValue: true
       - key: APP_URL
-        sync: false
-      - key: S3_REGION
-        value: us-east-1
-      - key: S3_BUCKET
-        sync: false
-      - key: S3_ACCESS_KEY_ID
-        sync: false
-      - key: S3_SECRET_ACCESS_KEY
-        sync: false
+        value: https://talento-sv-web.onrender.com
       - key: SCANNER_SECRET
         generateValue: true
       - key: WORKER_SECRET
