@@ -198,3 +198,15 @@
   .modern-cta p{font-size:17px}
   .modern-cta>div:not(.cta-orb)>div{margin-top:30px}
 }
+
+/* Unified editorial close */
+.closing-section{background:var(--green)}
+@media(min-width:1001px){
+  .closing-section{height:calc(100svh - 84px);min-height:680px;display:grid;grid-template-rows:42% 58%;scroll-margin-top:84px;overflow:hidden}
+  .closing-section .quote-section{min-height:0;padding:42px max(7vw,28px);display:grid;place-items:center}
+  .closing-section .quote-section blockquote{font-size:clamp(38px,4.2vw,58px)}
+  .closing-section .modern-cta{min-height:0;padding:46px max(7vw,28px);display:flex;align-items:center}
+  .closing-section .modern-cta h2{font-size:clamp(62px,7vw,94px);margin:15px 0}
+  .closing-section .modern-cta p{font-size:16px}
+  .closing-section .modern-cta>div:not(.cta-orb)>div{margin-top:24px}
+}

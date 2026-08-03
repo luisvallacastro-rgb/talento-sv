@@ -40,8 +40,9 @@ export default function HomePage() {
       <div className="process-line"><i/><Reveal delay={0} className="process-step"><article><b>01</b><h3>Entendemos</h3><p>El puesto, el equipo y el momento del negocio.</p></article></Reveal><Reveal delay={120} className="process-step"><article><b>02</b><h3>Encontramos</h3><p>Personas con experiencia y potencial relevante.</p></article></Reveal><Reveal delay={240} className="process-step"><article><b>03</b><h3>Evaluamos</h3><p>Evidencia consistente, explicable y profesional.</p></article></Reveal><Reveal delay={360} className="process-step"><article><b>04</b><h3>Acompañamos</h3><p>Hasta que la decisión correcta queda clara.</p></article></Reveal></div>
     </section>
 
-    <section className="quote-section"><Reveal><blockquote>“La tecnología organiza el proceso.<br/><em>El criterio humano decide.</em>”</blockquote></Reveal></section>
-
-    <section className="modern-cta"><div className="cta-orb"/><Reveal><span className="eyebrow">Su próxima contratación</span><h2>Hagamos que cuente.</h2><p>Cuéntenos qué necesita y diseñaremos una búsqueda a la medida.</p><div><Link className="button light magnetic" href="/cotizacion">Solicitar cotización <span>→</span></Link><Link href="/contacto">Hablar con el equipo</Link></div></Reveal></section>
+    <section className="closing-section">
+      <div className="quote-section"><Reveal><blockquote>“La tecnología organiza el proceso.<br/><em>El criterio humano decide.</em>”</blockquote></Reveal></div>
+      <div className="modern-cta"><div className="cta-orb"/><Reveal><span className="eyebrow">Su próxima contratación</span><h2>Hagamos que cuente.</h2><p>Cuéntenos qué necesita y diseñaremos una búsqueda a la medida.</p><div><Link className="button light magnetic" href="/cotizacion">Solicitar cotización <span>→</span></Link><Link href="/contacto">Hablar con el equipo</Link></div></Reveal></div>
+    </section>
   </main><SiteFooter/></>;
 }
