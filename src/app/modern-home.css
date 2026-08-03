@@ -150,6 +150,7 @@
 .hero-title .rotating-line{width:100%;height:1em;min-height:1em;align-items:center;justify-content:center;gap:0;overflow:visible;white-space:nowrap;font-size:1em;letter-spacing:-.075em;text-align:center}
 .rotating-text{font:inherit!important;color:inherit!important;line-height:1;display:inline-block}
 .rotating-text .phrase-word+ .phrase-word:not(:empty){margin-left:.22em}
+.hero-copy h1 .title-line-dark,.hero-copy h1 .title-line-dark span{color:var(--ink)}
 .typing-cursor{display:inline-block!important;width:.055em;height:.72em;margin-left:.075em;background:var(--green);border-radius:99px;opacity:1!important;transform:none!important;filter:none!important;animation:cursorBlink .82s steps(1,end) infinite!important}
 @keyframes cursorBlink{50%{opacity:0}}
 @media(max-width:650px){.hero-copy h1{font-size:clamp(24px,7vw,36px)}.hero-title{min-height:2.16em;grid-template-rows:1em 1em}.hero-title .rotating-line{font-size:1em;min-height:1em}.typing-cursor{height:.78em}}
@@ -242,7 +243,7 @@
 .modern-hero>.logo-marquee{width:100vw;margin-left:calc(50% - 50vw);margin-top:28px;margin-bottom:-8px}
 @media(max-width:650px){
   .modern-hero{padding-top:52px;padding-bottom:38px}
-  .hero-copy h1{font-size:clamp(52px,14.5vw,60px);margin:64px auto 30px}
+  .hero-copy h1{font-size:clamp(56px,15.5vw,64px);margin:64px auto 30px}
   .hero-title{min-height:2.82em;grid-template-rows:1em 1.82em}
   .hero-title .rotating-line{width:100%;height:1.82em;min-height:1.82em;font-size:.94em;line-height:.82;letter-spacing:-.068em;white-space:normal;align-items:center}
   .hero-title .rotating-text{display:grid;width:100%;min-height:1.64em;grid-template-rows:.82em .82em;align-content:center;justify-items:center;margin-inline:auto;text-align:center}
