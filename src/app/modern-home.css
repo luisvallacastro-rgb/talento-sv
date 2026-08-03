@@ -235,3 +235,17 @@
   .hero-proof p{font-size:11px;line-height:1.35}
   .talent-visual{margin-top:36px}
 }
+
+/* Mobile hero: message first, compact live strip */
+@media(max-width:650px){
+  .modern-hero{padding-top:52px;padding-bottom:38px}
+  .hero-copy h1{font-size:clamp(42px,11.5vw,48px);margin:34px auto 24px}
+  .hero-title{min-height:1.76em;grid-template-rows:1em .76em}
+  .hero-title .rotating-line{font-size:.68em;letter-spacing:-.06em}
+  .hero-copy>p{font-size:15px;line-height:1.42;max-width:326px}
+  .hero-actions{margin-top:22px}
+  .hero-proof{margin-top:20px}
+  .clear-talent-demo{height:58px!important;min-height:58px;margin-top:30px;border-radius:18px;box-shadow:0 16px 40px rgba(25,60,50,.11);background:rgba(255,255,255,.76)}
+  .clear-talent-demo .demo-topbar{height:58px;border-bottom:0;animation:none;opacity:1;transform:none}
+  .clear-talent-demo .clear-demo-heading,.clear-talent-demo .selection-flow,.clear-talent-demo .demo-pointer-light,.clear-talent-demo .demo-glow{display:none!important}
+}
