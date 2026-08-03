@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Reveal } from "@/components/reveal";
 import { TalentDemo } from "@/components/talent-demo";
+import { RotatingHeroPhrase } from "@/components/rotating-hero-phrase";
 
 const services = [
   { n: "01", t: "El mejor. Punto.", d: "Encontramos talento que otros no ven.", tag: "Búsqueda", impact: "48 → 3", impactLabel: "Una terna decisiva" },
@@ -16,7 +17,7 @@ export default function HomePage() {
       <div className="hero-orb orb-one"/><div className="hero-orb orb-two"/><div className="hero-grid"/>
       <div className="hero-copy">
         <div className="live-pill hero-enter hero-enter-pill"><i/> Reclutamiento con visión humana</div>
-        <h1 className="hero-title" aria-label="Talento que mueve empresas."><span className="title-line"><i>Talento</i><i>que</i></span><span className="title-line title-line-dark"><i>mueve</i><i>empresas.</i></span></h1>
+        <h1 className="hero-title"><span className="sr-only">Talento que mueve empresas.</span><span className="title-line" aria-hidden="true"><i>Talento</i><i>que</i></span><RotatingHeroPhrase/></h1>
         <p className="hero-intro hero-enter">Conectamos decisiones importantes con personas extraordinarias mediante procesos claros, rigurosos y humanos.</p>
         <div className="hero-actions"><Link className="button magnetic" href="/solicitar-personal">Iniciar una búsqueda <span>→</span></Link><Link className="play-link" href="/servicios"><i>↗</i> Explorar servicios</Link></div>
         <div className="hero-proof"><div className="avatar-stack"><span>AM</span><span>JR</span><span>+8</span></div><p><b>Equipos que confían</b><br/>en procesos mejor pensados</p></div>

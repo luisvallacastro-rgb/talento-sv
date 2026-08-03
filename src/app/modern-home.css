@@ -143,6 +143,16 @@
 @media(max-width:1000px){.bento-card h3{max-width:100%}.bento-1 h3{margin-top:65px}.bento-stats article{grid-template-columns:1fr}.stats-row>div{height:auto;aspect-ratio:1}}
 @media(max-width:650px){.service-tag{max-width:calc(100% - 62px)}.bento-card a{width:36px;height:36px;right:22px;top:22px}.bento-1 h3{font-size:48px;margin-top:78px}.bento-1 .service-impact strong{font-size:70px}.bento-card>article>p{max-width:100%}}
 
+/* Rotating hero statement */
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.hero-title .rotating-line{min-height:1.05em;align-items:center;overflow:visible;white-space:nowrap;font-size:1em;transition:font-size .28s ease}
+.hero-title .rotating-line-long{font-size:.69em;letter-spacing:-.058em}
+.rotating-text{font:inherit!important;color:inherit!important;line-height:1;display:inline-block}
+.typing-cursor{display:inline-block!important;width:.055em;height:.72em;margin-left:.075em;background:var(--green);border-radius:99px;opacity:1!important;transform:none!important;filter:none!important;animation:cursorBlink .82s steps(1,end) infinite!important}
+@keyframes cursorBlink{50%{opacity:0}}
+@media(max-width:650px){.hero-title .rotating-line{font-size:.86em;min-height:1.18em}.hero-title .rotating-line-long{font-size:.54em}.typing-cursor{height:.78em}}
+@media(prefers-reduced-motion:reduce){.typing-cursor{display:none!important}.hero-title .rotating-line{font-size:1em}.hero-title .rotating-line-long{font-size:1em}}
+
 /* Desktop viewport-fit service grid */
 @media(min-width:1001px){.bento-grid{grid-template-rows:235px 220px}.bento-1 article{min-height:471px;padding:30px 34px}.bento-2 article,.bento-3 article{min-height:235px;padding:26px 30px}.bento-stats article{min-height:220px;padding:26px 36px}.bento-1 h3{font-size:clamp(43px,4vw,62px);margin-top:52px}.bento-1>article>p{font-size:15px;margin-bottom:18px}.bento-1 .service-impact{padding-top:18px}.bento-1 .service-impact strong{font-size:clamp(62px,6vw,88px)}.bento-card h3{font-size:clamp(24px,1.8vw,30px);margin-top:34px;margin-bottom:9px}.bento-card>article>p{font-size:12px;line-height:1.4}.bento-2 .service-impact,.bento-3 .service-impact{padding-top:14px}.bento-2 .service-impact strong,.bento-3 .service-impact strong{font-size:39px}.service-impact span{margin-top:7px;font-size:7px}.service-tag{margin-top:10px;padding-block:5px;font-size:8px}.bento-card a{width:34px;height:34px;right:22px;top:22px}.bento-stats .stats-copy h3{font-size:42px;margin:6px 0}.bento-stats .stats-copy p{font-size:10px}.stats-row>div{height:92px}.stats-row strong{font-size:32px}.stats-row span{font-size:6px}}
 
