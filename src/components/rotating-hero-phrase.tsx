@@ -34,5 +34,9 @@ export function RotatingHeroPhrase(){
     return()=>window.clearTimeout(timer);
   },[deleting,index,text]);
 
-  return <span className="title-line title-line-dark rotating-line" aria-hidden="true"><span className="rotating-text">{text}</span><i className="typing-cursor"/></span>;
+  const separator=text.indexOf(" ");
+  const firstWord=separator===-1?text:text.slice(0,separator);
+  const secondWord=separator===-1?"":text.slice(separator+1);
+
+  return <span className="title-line title-line-dark rotating-line" aria-hidden="true"><span className="rotating-text"><span className="phrase-word">{firstWord}</span><span className="phrase-word">{secondWord}</span></span><i className="typing-cursor"/></span>;
 }
