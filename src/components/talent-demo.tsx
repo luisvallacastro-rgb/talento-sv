@@ -1,9 +1,21 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export function TalentDemo() {
   const demoRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const demo = demoRef.current;
+    if (!demo) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      demo.classList.add("is-in-view");
+      observer.disconnect();
+    }, { threshold: 0.12, rootMargin: "0px 0px -8%" });
+    observer.observe(demo);
+    return () => observer.disconnect();
+  }, []);
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     if (event.pointerType === "touch") return;

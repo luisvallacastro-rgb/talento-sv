@@ -258,3 +258,36 @@
   .mobile-demo-section{display:block;padding:42px 18px 72px;background:#eef3eb}
   .mobile-demo-section .talent-visual{margin:0 auto;border-radius:24px}
 }
+
+/* Mobile shortlist story starts when the section enters the viewport */
+@media(max-width:650px) and (prefers-reduced-motion:no-preference){
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .candidate-cloud i,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .flow-arrow i,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .criteria-list>div,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .criteria-list em,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .finalists>div,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .final-message{animation-play-state:paused!important}
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .candidate-cloud i,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .finalists>div,
+  .mobile-demo-section .clear-talent-demo:not(.is-in-view) .final-message{opacity:0}
+  .mobile-demo-section .clear-talent-demo.is-in-view .candidate-cloud i{animation:mobileCandidateGather 7.2s cubic-bezier(.2,.8,.2,1) infinite}
+  .mobile-demo-section .clear-talent-demo.is-in-view .candidate-cloud i:nth-child(3n){animation-delay:.12s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .candidate-cloud i:nth-child(3n+1){animation-delay:.24s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .flow-arrow i{animation-duration:7.2s;animation-delay:2.35s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .flow-arrow.second i{animation-delay:4.25s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .criteria-list>div{animation-duration:7.2s;animation-delay:2.7s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .criteria-list>div:nth-child(2){animation-delay:3.05s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .criteria-list>div:nth-child(3){animation-delay:3.4s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .criteria-list em{animation-duration:7.2s;animation-delay:2.55s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .finalists>div{animation-duration:7.2s;animation-delay:4.55s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .finalists>div:nth-child(2){animation-delay:4.9s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .finalists>div:nth-child(3){animation-delay:5.25s}
+  .mobile-demo-section .clear-talent-demo.is-in-view .final-message{animation-duration:7.2s;animation-delay:5.55s}
+}
+@keyframes mobileCandidateGather{
+  0%{opacity:0;transform:scale(.45) translateY(18px)}
+  12%,32%{opacity:1;transform:scale(1) translateY(0)}
+  48%{opacity:.9;transform:scale(.78) translateY(22px)}
+  62%,88%{opacity:.38;transform:scale(.72) translateY(34px)}
+  100%{opacity:0;transform:scale(.55) translateY(42px)}
+}
