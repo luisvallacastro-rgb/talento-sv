@@ -1,2 +1,2 @@
 import { ContentPage } from "@/components/content-page"; import { PublicForm } from "@/components/public-form"; import styles from "./contacto.module.css";
-export default function Page(){return <ContentPage eyebrow="Contacto" title="Conversemos sobre su próximo reto." intro="Déjenos sus datos y responderemos en horario laboral."><div className={styles.formShell}><PublicForm type="CONTACT"/></div></ContentPage>}
+export default function Page(){return <ContentPage className={styles.contactPage} eyebrow="Contacto" title="Conversemos sobre su próximo reto." intro="Déjenos sus datos y responderemos en horario laboral."><div className={styles.formShell}><PublicForm type="CONTACT"/></div></ContentPage>}
