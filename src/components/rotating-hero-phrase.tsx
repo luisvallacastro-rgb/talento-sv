@@ -7,7 +7,6 @@ const phrases=[
   "transforma equipos",
   "impulsa resultados",
   "conecta personas",
-  "fortalece organizaciones",
   "desarrolla líderes",
   "genera oportunidades",
   "construye futuro",
