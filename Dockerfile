@@ -12,4 +12,4 @@ ENV NODE_ENV=production
 RUN corepack enable
 COPY --from=base /app ./
 EXPOSE 3000
-CMD ["sh", "-c", "pnpm exec prisma migrate deploy && pnpm start"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/next start"]
